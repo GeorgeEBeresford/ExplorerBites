@@ -11,5 +11,7 @@ namespace ExplorerBites.Models
         void LoadContents();
         void LoadDirectories();
         void LoadFiles();
+
+        bool HasChildren { get; }
     }
 }

@@ -57,6 +57,7 @@
     </ApplicationDefinition>
     <Compile Include="Behaviours\TreeExpandingBehaviour.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="Models\ViewModels\IDirectoryViewModel.cs" />
     <Compile Include="Models\ViewModels\RootViewModel.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Models\ViewModels\DirectoryViewModel.cs" />

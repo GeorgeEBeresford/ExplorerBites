@@ -44,5 +44,10 @@
         /// </param>
         /// <returns></returns>
         bool Move(IDirectory directory);
+
+        /// <summary>
+        /// Whether the file tree exists and is a valid node (e.g. hasn't been corrupted)
+        /// </summary>
+        bool IsValid { get; }
     }
 }

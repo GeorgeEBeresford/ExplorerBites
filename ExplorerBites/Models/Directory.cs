@@ -17,9 +17,9 @@ namespace ExplorerBites.Models
         public Directory(string path)
         {
             DirectoryInfo = new DirectoryInfo(path);
-
             LoadedDirectories = new List<IDirectory>();
             LoadedFiles = new List<IFile>();
+            IsValid = DirectoryInfo.Exists;
         }
 
         public IFileTree Parent => new Directory(DirectoryInfo.Parent?.FullName);
@@ -61,6 +61,8 @@ namespace ExplorerBites.Models
             throw new NotImplementedException();
         }
 
+        public bool IsValid { get; private set; }
+
         public void LoadContents()
         {
             LoadDirectories();
@@ -69,45 +71,92 @@ namespace ExplorerBites.Models
 
         public void LoadDirectories()
         {
-            if (!DirectoryInfo.Exists)
+            if (!IsValid)
             {
                 return;
             }
 
             LoadedDirectories.Clear();
 
+            IEnumerable<Directory> directories;
             try
             {
-                IEnumerable<Directory> directories = DirectoryInfo
+                directories = DirectoryInfo
                     .GetDirectories()
                     .Select(directory => new Directory(directory.FullName));
-
-                LoadedDirectories.AddRange(directories);
             }
             catch (UnauthorizedAccessException)
             {
+                IsValid = false;
+                return;
             }
+            catch (DirectoryNotFoundException)
+            {
+                IsValid = false;
+                return;
+            }
+
+            LoadedDirectories.AddRange(directories);
         }
 
         public void LoadFiles()
         {
-            if (!DirectoryInfo.Exists)
+            if (!IsValid)
             {
                 return;
             }
 
             LoadedFiles.Clear();
 
+            IEnumerable<File> files;
             try
             {
-                IEnumerable<File> files = DirectoryInfo
+                files = DirectoryInfo
                     .GetFiles()
                     .Select(file => new File(file.FullName, this));
-
-                LoadedFiles.AddRange(files);
             }
             catch (UnauthorizedAccessException)
             {
+                IsValid = false;
+                return;
+            }
+            catch (DirectoryNotFoundException)
+            {
+                IsValid = false;
+                return;
+            }
+
+            LoadedFiles.AddRange(files);
+        }
+
+        public bool HasChildren
+        {
+            get
+            {
+                if (!IsValid)
+                {
+                    return false;
+                }
+
+                bool hasChildren;
+
+                try
+                {
+                    hasChildren = DirectoryInfo.EnumerateDirectories("*", SearchOption.TopDirectoryOnly)
+                        .Any(subDirectory => subDirectory.Exists);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    IsValid = false;
+                    return false;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    IsValid = false;
+                    return false;
+                }
+
+                return hasChildren;
             }
         }
 
@@ -115,5 +164,4 @@ namespace ExplorerBites.Models
         {
             return Name;
         }
-    }
-}
+    }}

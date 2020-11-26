@@ -9,6 +9,7 @@ namespace ExplorerBites.Models
         {
             FileInfo = new FileInfo(path);
             Parent = parent;
+            IsValid = FileInfo.Exists;
         }
 
         private FileInfo FileInfo { get; }
@@ -34,9 +35,33 @@ namespace ExplorerBites.Models
             throw new NotImplementedException();
         }
 
+        public bool IsValid { get; private set; }
+
         public byte[] GetContents()
         {
-            using (FileStream fileStream = FileInfo.OpenRead())
+            if (!IsValid)
+            {
+                return new byte[0];
+            }
+
+            FileStream fileStream;
+
+            try
+            {
+                fileStream = FileInfo.OpenRead();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                IsValid = false;
+                return new byte[0];
+            }
+            catch (FileNotFoundException)
+            {
+                IsValid = false;
+                return new byte[0];
+            }
+
+            using (fileStream)
             {
                 byte[] contentBuffer = new byte[FileInfo.Length];
                 int status = fileStream.Read(contentBuffer, 0, (int) FileInfo.Length);

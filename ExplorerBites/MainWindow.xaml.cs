@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using ExplorerBites.Annotations;
+using ExplorerBites.Commands;
 using ExplorerBites.Models;
 using ExplorerBites.Models.ViewModels;
 
@@ -19,29 +20,117 @@ namespace ExplorerBites
     {
         public MainWindow()
         {
-            InitializeComponent();
+            History = new Stack<IDirectoryViewModel>();
+            HistoryRollback = new Stack<IDirectoryViewModel>();
             SelectedFileTrees = new List<IFileTree>();
+
+            PreviousDirectoryCommand = new RelayCommand(LoadPreviousDirectory);
+            ParentDirectoryCommand = new RelayCommand(LoadParentDirectory);
+            UndoPreviousDirectoryCommand = new RelayCommand(UndoPreviousDirectory);
+
+            InitializeComponent();
+            InitialiseFolderHeirarchy();
+
+            NavigationShortcuts.DataContext = this;
         }
 
-        public RootViewModel RootViewModel => new RootViewModel();
-        public DirectoryViewModel SelectedDirectory { get; private set; }
+        private void InitialiseFolderHeirarchy()
+        {
+            RootViewModel = new RootViewModel();
+            OnPropertyChanged(nameof(RootViewModel));
+
+            RootViewModel.LoadDirectories();
+            SelectDirectory(RootViewModel);
+        }
+
+        /// <summary>
+        ///  A stack of directories which the user has hit the "back" button while on. If the page is changed without executing the PreviousDirectoryCommand, this will be cleared.
+        /// </summary>
+        private Stack<IDirectoryViewModel> HistoryRollback { get; }
+
+        /// <summary>
+        /// A stack of directories which the user has selected another page while on.
+        /// </summary>
+        private Stack<IDirectoryViewModel> History { get; }
+        public RootViewModel RootViewModel { get; private set; }
+        public IDirectoryViewModel SelectedDirectory { get; private set; }
         public ICollection<IFileTree> SelectedFileTrees { get; }
+
+        public ICommand PreviousDirectoryCommand { get; }
+        public ICommand ParentDirectoryCommand { get; }
+        public ICommand UndoPreviousDirectoryCommand { get; }
+
+        private void LoadParentDirectory()
+        {
+            IDirectoryViewModel currentDirectory = SelectedDirectory;
+
+            if (currentDirectory != null)
+            {
+                if (currentDirectory.Parent is IDirectoryViewModel parentViewModel)
+                {
+                    SelectDirectory(parentViewModel);
+                }
+
+                History.Push(currentDirectory);
+                HistoryRollback.Clear();
+            }
+        }
+
+        private void LoadPreviousDirectory()
+        {
+            IDirectoryViewModel currentDirectory = SelectedDirectory;
+
+            if (currentDirectory != null && History.Any())
+            {
+                IDirectoryViewModel historicalDirectory = History.Pop();
+
+                if (historicalDirectory != null)
+                {
+                    SelectDirectory(historicalDirectory);
+                }
+
+                HistoryRollback.Push(currentDirectory);
+            }
+        }
+
+        private void UndoPreviousDirectory()
+        {
+            IDirectoryViewModel currentDirectory = SelectedDirectory;
+
+            if (currentDirectory != null && HistoryRollback.Any())
+            {
+                IDirectoryViewModel historicalDirectory = HistoryRollback.Pop();
+
+                if (historicalDirectory != null)
+                {
+                    SelectDirectory(historicalDirectory);
+                }
+
+                History.Push(currentDirectory);
+            }
+        }
 
         private void SelectDirectory(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            DirectoryViewModel selectedDirectory = e.NewValue as DirectoryViewModel;
-
-            if (selectedDirectory != null)
+            if (e.NewValue is IDirectoryViewModel selectedDirectory)
             {
                 SelectDirectory(selectedDirectory);
             }
         }
 
-        private void SelectDirectory(DirectoryViewModel directory)
+        private void SelectDirectory(IDirectoryViewModel directory)
         {
             SelectedDirectory = directory;
             SelectedDirectory.LoadContents();
             OnPropertyChanged(nameof(SelectedDirectory));
+
+            // If we aren't currently at the root level and the last viewed item isn't the last item in our history, add the directory to our history
+            if (directory.Parent is IDirectoryViewModel parentViewModel && (!History.Any() || !History.Peek().Equals(parentViewModel)))
+            {
+                History.Push(parentViewModel);
+            }
+
+            HistoryRollback.Clear();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -54,13 +143,14 @@ namespace ExplorerBites
 
         private void OpenItem(object sender, MouseButtonEventArgs e)
         {
-            DirectoryViewModel firstSelectedDirectory = SelectedFileTrees
-                .OfType<DirectoryViewModel>()
+            IDirectoryViewModel firstSelectedDirectory = SelectedFileTrees
+                .OfType<IDirectoryViewModel>()
                 .FirstOrDefault();
 
             if (firstSelectedDirectory != null)
             {
                 SelectDirectory(firstSelectedDirectory);
+                firstSelectedDirectory.IsExpanded = true;
             }
         }
 

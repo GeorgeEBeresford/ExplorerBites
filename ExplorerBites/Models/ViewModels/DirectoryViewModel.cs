@@ -3,39 +3,37 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using ExplorerBites.Annotations;
 using ExplorerBites.Commands;
 
 namespace ExplorerBites.Models.ViewModels
 {
-    public class DirectoryViewModel : IDirectory, INotifyPropertyChanged
+    public class DirectoryViewModel : IDirectoryViewModel, IDirectory, INotifyPropertyChanged
     {
-        public DirectoryViewModel(IDirectory directory)
+        public DirectoryViewModel(IDirectory directory, IDirectoryViewModel parent)
         {
             Directory = directory;
+            Parent = parent;
             LoadDirectoriesCommand = new RelayCommand(LoadDirectories);
             LoadContentsCommand = new RelayCommand(LoadContents);
 
             ObservableContents = new ObservableCollection<IFileTree>();
             ObservableDirectories = new ObservableCollection<IDirectory>();
             ObservableFiles = new ObservableCollection<IFile>();
+
+            // Allow the directory to be expanded via the UI without loading the directory contents (increased performance for folders containing a lot of sub-directories)
+            if (Directory.HasChildren)
+            {
+                ObservableDirectories.Add(null);
+            }
         }
 
-        public DirectoryViewModel GetUnloaded()
-        {
-            // Create a fresh copy of the current directory view model
-            Directory.LoadedDirectories.Clear();
-            Directory.LoadedContents.Clear();
-            Directory.LoadedFiles.Clear();
-
-            return new DirectoryViewModel(Directory);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
         public ICommand LoadDirectoriesCommand { get; }
         public ICommand LoadContentsCommand { get; }
 
-        public IFileTree Parent => Directory.Parent;
+        public IFileTree Parent { get; }
         public bool IsDirectory => Directory.IsDirectory;
         public string Name => Directory.Name;
         public string Path => Directory.Path;
@@ -61,6 +59,8 @@ namespace ExplorerBites.Models.ViewModels
             return Directory.Move(directory);
         }
 
+        public bool IsValid => Directory.IsValid;
+
         public List<IFileTree> LoadedContents => Directory.LoadedContents;
         public List<IDirectory> LoadedDirectories => Directory.LoadedDirectories;
         public List<IFile> LoadedFiles => Directory.LoadedFiles;
@@ -71,22 +71,46 @@ namespace ExplorerBites.Models.ViewModels
             LoadFiles();
         }
 
+        /// <summary>
+        /// The value for IsExpanded is stored here. The value should be set with IsExpanded so any events are properly fired
+        /// </summary>
+        private bool IsExpandedCache { get; set; }
+
+        public bool IsExpanded
+        {
+            get => IsExpandedCache;
+            set
+            {
+                IsExpandedCache = value;
+                OnPropertyChanged(nameof(IsExpanded));
+
+                if (IsExpandedCache && Parent is IDirectoryViewModel parent)
+                {
+                    parent.IsExpanded = true;
+                }
+            }
+        }
+
         public void LoadDirectories()
         {
             Directory.LoadDirectories();
 
             ObservableDirectories.Clear();
-            foreach (IDirectory directory in LoadedDirectories)
+            foreach (IDirectory subDirectory in LoadedDirectories)
             {
-                directory.LoadDirectories();
+                DirectoryViewModel subDirectoryViewModel = new DirectoryViewModel(subDirectory, this);
 
-                DirectoryViewModel directoryViewModel = new DirectoryViewModel(directory);
-                foreach (IDirectory subDirectory in directory.LoadedDirectories)
-                {
-                    directoryViewModel.ObservableDirectories.Add(subDirectory);
-                }
+                //if (subDirectoryViewModel.IsValid)
+                //{
+                //    subDirectory.LoadDirectories();
 
-                ObservableDirectories.Add(directoryViewModel);
+                //    foreach (IDirectory subDirectoryChild in subDirectory.LoadedDirectories)
+                //    {
+                //        subDirectoryViewModel.ObservableDirectories.Add(subDirectoryChild);
+                //    }
+                //}
+
+                ObservableDirectories.Add(subDirectoryViewModel);
             }
 
             ResyncLoadedContents();
@@ -104,6 +128,8 @@ namespace ExplorerBites.Models.ViewModels
 
             ResyncLoadedContents();
         }
+
+        public bool HasChildren => Directory.HasChildren;
 
         public new string ToString()
         {
@@ -123,6 +149,14 @@ namespace ExplorerBites.Models.ViewModels
             {
                 ObservableContents.Add(file);
             }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
