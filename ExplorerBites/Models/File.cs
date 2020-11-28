@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using WindowsWrapper.FileSystem;
 
 namespace ExplorerBites.Models
 {
@@ -8,6 +9,7 @@ namespace ExplorerBites.Models
         public File(string path, IDirectory parent)
         {
             FileInfo = new FileInfo(path);
+            WrappedFile = new WindowsFile(FileInfo);
             Parent = parent;
             IsValid = FileInfo.Exists;
         }
@@ -16,6 +18,7 @@ namespace ExplorerBites.Models
 
         public IFileTree Parent { get; }
         public bool IsDirectory => false;
+        public string FileTreeType => $"{Extension.ToUpper()} File";
         public string Name => FileInfo.Name;
         public string Path => FileInfo.FullName;
         public string Extension => FileInfo.Extension;
@@ -64,14 +67,58 @@ namespace ExplorerBites.Models
             using (fileStream)
             {
                 byte[] contentBuffer = new byte[FileInfo.Length];
-                int status = fileStream.Read(contentBuffer, 0, (int) FileInfo.Length);
+                int status = fileStream.Read(contentBuffer, 0, (int)FileInfo.Length);
                 return contentBuffer;
             }
         }
+
+        public bool TryOpen()
+        {
+            bool isSuccess = WrappedFile.TryExecute();
+            return isSuccess;
+        }
+
+        public DateTime LastModifiedOn => FileInfo.LastWriteTimeUtc.ToLocalTime();
+        public long Length => FileInfo.Length;
+        public string SizeDescription
+        {
+            get
+            {
+                long length = Length;
+                int power = 0;
+
+                // I'm sure there's a better way to find KiB, MiB, GiB, etc... I'm tired.
+                while (length > 1024)
+                {
+                    length /= 1024;
+                    power += 1;
+                }
+
+                switch (power)
+                {
+                    case 1:
+                        return $"{length} KiB";
+                    case 2:
+                        return $"{length} MiB";
+                    case 3:
+                        return $"{length} GiB";
+                    case 4:
+                        // Maximum file size is 256 Terabytes. We don't need to go any higher than this
+                        return $"{length} TiB";
+                    default:
+                        return $"{Length} bytes";
+
+                }
+            }
+        }
+
+        public string KiBDescription => $"{(Length / 1024):N0} KB";
 
         public override string ToString()
         {
             return Name;
         }
+
+        private WindowsWrapper.FileSystem.IFile WrappedFile { get; }
     }
 }

@@ -45,14 +45,20 @@
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>
-        <ListView MouseDoubleClick="OpenItem" Background="White" SelectionChanged="SelectFileTreeNode" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" HorizontalContentAlignment="Stretch" DataContext="{Binding ElementName=UI, Path=SelectedDirectory}" ItemsSource="{Binding ObservableContents}">
+        <ListView x:Name="FileTreeNodeView" MouseDoubleClick="OpenItem" Background="White" SelectionChanged="SelectFileTreeNodes" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" HorizontalContentAlignment="Stretch" DataContext="{Binding ElementName=UI}" MouseLeftButtonDown="DeselectFileTrees" ItemsSource="{Binding SelectedDirectory.ObservableContents}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}"></GridViewColumn>
-                    <GridViewColumn Header="IsDirectory" Width="100"  DisplayMemberBinding="{Binding IsDirectory}"></GridViewColumn>
+                    <GridViewColumn Header="Date modified" Width="200" DisplayMemberBinding="{Binding LastModifiedOn}"></GridViewColumn>
+                    <GridViewColumn Header="Type" Width="100"  DisplayMemberBinding="{Binding FileTreeType}"></GridViewColumn>
+                    <GridViewColumn Header="Size" Width="200" DisplayMemberBinding="{Binding KiBDescription}"></GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
-        <StackPanel Background="WhiteSmoke" Height="30" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="4" VerticalAlignment="Bottom"/>
+        <StackPanel DataContext="{Binding ElementName=UI}" Background="WhiteSmoke" Height="30" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="4" Orientation="Horizontal">
+            <TextBlock Text="{Binding TotalItemsCount}" HorizontalAlignment="Left" Margin="16,8,0,0"></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="8,7,0,0"> ║ </TextBlock>
+            <TextBlock Text="{Binding TotalItemsSelected}" HorizontalAlignment="Left" Margin="8,8,0,0"></TextBlock>
+        </StackPanel>
     </Grid>
 </Window>

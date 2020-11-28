@@ -21,6 +21,7 @@ namespace ExplorerBites.Models.ViewModels
 
         public IFileTree Parent => null;
         public bool IsDirectory => false;
+        public string FileTreeType => "Root";
         public string Name => null;
         public string Path => null;
 
@@ -40,6 +41,14 @@ namespace ExplorerBites.Models.ViewModels
         }
 
         public bool IsValid => true;
+
+        public DateTime LastModifiedOn => ObservableDirectories
+            .OrderBy(drive => drive.LastModifiedOn)
+            .Select(drive => drive.LastModifiedOn.ToLocalTime())
+            .FirstOrDefault();
+
+        public string SizeDescription => "";
+        public string KiBDescription => "";
 
         public void LoadContents()
         {

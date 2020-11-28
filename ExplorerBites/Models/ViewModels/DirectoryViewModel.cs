@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -35,6 +36,7 @@ namespace ExplorerBites.Models.ViewModels
 
         public IFileTree Parent { get; }
         public bool IsDirectory => Directory.IsDirectory;
+        public string FileTreeType => Directory.FileTreeType;
         public string Name => Directory.Name;
         public string Path => Directory.Path;
 
@@ -60,6 +62,7 @@ namespace ExplorerBites.Models.ViewModels
         }
 
         public bool IsValid => Directory.IsValid;
+        public DateTime LastModifiedOn => Directory.LastModifiedOn;
 
         public List<IFileTree> LoadedContents => Directory.LoadedContents;
         public List<IDirectory> LoadedDirectories => Directory.LoadedDirectories;
@@ -90,6 +93,9 @@ namespace ExplorerBites.Models.ViewModels
                 }
             }
         }
+
+        public string SizeDescription => Directory.SizeDescription;
+        public string KiBDescription => Directory.KiBDescription;
 
         public void LoadDirectories()
         {

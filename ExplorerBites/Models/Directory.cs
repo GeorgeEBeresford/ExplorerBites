@@ -24,8 +24,12 @@ namespace ExplorerBites.Models
 
         public IFileTree Parent => new Directory(DirectoryInfo.Parent?.FullName);
         public bool IsDirectory => true;
+        public string FileTreeType => "File directory";
         public string Name => DirectoryInfo.Name;
         public string Path => DirectoryInfo.FullName;
+        public DateTime LastModifiedOn => DirectoryInfo.LastWriteTimeUtc.ToLocalTime();
+        public string SizeDescription => "";
+        public string KiBDescription => "";
 
         public List<IFileTree> LoadedContents => (LoadedDirectories ?? new List<IDirectory>(0))
             .Cast<IFileTree>()

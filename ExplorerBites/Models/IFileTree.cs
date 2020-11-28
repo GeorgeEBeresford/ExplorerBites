@@ -1,4 +1,6 @@
-﻿namespace ExplorerBites.Models
+﻿using System;
+
+namespace ExplorerBites.Models
 {
     public interface IFileTree
     {
@@ -11,6 +13,12 @@
         ///     Whether the tree node is a directory
         /// </summary>
         bool IsDirectory { get; }
+
+        /// <summary>
+        /// A description of the kind of file tree we're looking at based off either the extension or whether it's
+        /// a directory
+        /// </summary>
+        string FileTreeType { get; }
 
         /// <summary>
         ///     The name of the tree node
@@ -49,5 +57,20 @@
         /// Whether the file tree exists and is a valid node (e.g. hasn't been corrupted)
         /// </summary>
         bool IsValid { get; }
+        
+        /// <summary>
+        /// The last date the file was written to, expressed as a local time
+        /// </summary>
+        DateTime LastModifiedOn { get; }
+
+        /// <summary>
+        /// A description of the number of bytes in the file tree node
+        /// </summary>
+        string SizeDescription { get; }
+
+        /// <summary>
+        /// The number of Kibibytes in the file tree node
+        /// </summary>
+        string KiBDescription { get; }
     }
 }

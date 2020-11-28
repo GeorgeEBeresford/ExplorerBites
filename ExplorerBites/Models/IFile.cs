@@ -1,4 +1,6 @@
-﻿namespace ExplorerBites.Models
+﻿using System;
+
+namespace ExplorerBites.Models
 {
     /// <summary>
     ///     Represents a class that allows files to be manipulated in a non-static context
@@ -10,5 +12,16 @@
         /// </summary>
         /// <returns></returns>
         byte[] GetContents();
+
+        /// <summary>
+        /// Attempts to open the file using the default handler
+        /// </summary>
+        /// <returns></returns>
+        bool TryOpen();
+
+        /// <summary>
+        /// The number of bytes in the file
+        /// </summary>
+        long Length { get; }
     }
 }

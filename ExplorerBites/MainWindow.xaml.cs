@@ -123,6 +123,7 @@ namespace ExplorerBites
             SelectedDirectory = directory;
             SelectedDirectory.LoadContents();
             OnPropertyChanged(nameof(SelectedDirectory));
+            OnPropertyChanged(nameof(TotalItemsCount));
 
             // If we aren't currently at the root level and the last viewed item isn't the last item in our history, add the directory to our history
             if (directory.Parent is IDirectoryViewModel parentViewModel && (!History.Any() || !History.Peek().Equals(parentViewModel)))
@@ -131,6 +132,10 @@ namespace ExplorerBites
             }
 
             HistoryRollback.Clear();
+
+            // New folder context, new set of selected file trees
+            SelectedFileTrees.Clear();
+            OnPropertyChanged(nameof(TotalItemsSelected));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -152,9 +157,17 @@ namespace ExplorerBites
                 SelectDirectory(firstSelectedDirectory);
                 firstSelectedDirectory.IsExpanded = true;
             }
+
+            IEnumerable<IFile> selectedFiles = SelectedFileTrees
+                .OfType<IFile>();
+
+            foreach (IFile file in selectedFiles)
+            {
+                file.TryOpen();
+            }
         }
 
-        private void SelectFileTreeNode(object sender, SelectionChangedEventArgs e)
+        private void SelectFileTreeNodes(object sender, SelectionChangedEventArgs e)
         {
             foreach (IFileTree fileTree in e.AddedItems)
             {
@@ -165,6 +178,19 @@ namespace ExplorerBites
             {
                 SelectedFileTrees.Remove(fileTree);
             }
+
+            OnPropertyChanged(nameof(TotalItemsSelected));
+        }
+
+        public string TotalItemsCount => $"#Items: {SelectedDirectory?.ObservableContents.Count ?? 0}";
+
+        public string TotalItemsSelected => SelectedFileTrees.Any()
+            ? $"#Items Selected: {SelectedFileTrees.Count}"
+            : "";
+
+        private void DeselectFileTrees(object sender, MouseButtonEventArgs e)
+        {
+            FileTreeNodeView.SelectedItem = null;
         }
     }
 }
