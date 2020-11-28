@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -32,6 +33,7 @@ namespace ExplorerBites
             InitialiseFolderHeirarchy();
 
             NavigationShortcuts.DataContext = this;
+            UI.WindowState = WindowState.Maximized;
         }
 
         private void InitialiseFolderHeirarchy()
@@ -136,6 +138,8 @@ namespace ExplorerBites
             // New folder context, new set of selected file trees
             SelectedFileTrees.Clear();
             OnPropertyChanged(nameof(TotalItemsSelected));
+
+            Title = directory.Path ?? Assembly.GetExecutingAssembly().GetName().Name;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
