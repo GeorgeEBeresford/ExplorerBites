@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ExplorerBites.Models
+namespace ExplorerBites.Models.FileSystem
 {
     public interface IDirectory : IFileTree
     {

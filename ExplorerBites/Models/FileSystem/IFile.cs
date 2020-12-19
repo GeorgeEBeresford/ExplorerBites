@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ExplorerBites.Models
+﻿namespace ExplorerBites.Models.FileSystem
 {
     /// <summary>
     ///     Represents a class that allows files to be manipulated in a non-static context

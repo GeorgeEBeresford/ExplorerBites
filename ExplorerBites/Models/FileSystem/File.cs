@@ -2,7 +2,7 @@
 using System.IO;
 using WindowsWrapper.FileSystem;
 
-namespace ExplorerBites.Models
+namespace ExplorerBites.Models.FileSystem
 {
     public class File : IFile
     {

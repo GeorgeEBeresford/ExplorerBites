@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ExplorerBites.Models;
+using ExplorerBites.Models.FileSystem;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Directory = ExplorerBites.Models.Directory;
+using Directory = ExplorerBites.Models.FileSystem.Directory;
 
 namespace ExplorerBites.UnitTests.DirectoryBrowser
 {

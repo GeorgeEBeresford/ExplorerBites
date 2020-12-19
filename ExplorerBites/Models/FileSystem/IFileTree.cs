@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ExplorerBites.Models
+namespace ExplorerBites.Models.FileSystem
 {
     public interface IFileTree
     {

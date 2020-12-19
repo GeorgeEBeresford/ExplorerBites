@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace ExplorerBites.Models
+namespace ExplorerBites.Models.FileSystem
 {
     public class Directory : IDirectory
     {
