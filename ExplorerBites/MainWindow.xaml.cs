@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -19,7 +18,7 @@ namespace ExplorerBites
     /// </summary>
     public partial class MainWindow : INotifyPropertyChanged
     {
-        private Point? DragStartPosition;
+        //private Point? DragStartPosition;
 
         public MainWindow()
         {
@@ -104,8 +103,13 @@ namespace ExplorerBites
             // Greedy-load the enumerable so we aren't enumerating twice
             fileTrees = fileTrees.ToList();
 
-            TotalItemsSelected = fileTrees.Any() ? $"#Items Selected: {fileTrees.Count()}" : "";
+            foreach (IFileTreeViewModel selectableFileTree in fileTrees.OfType<IFileTreeViewModel>())
+            {
+                selectableFileTree.SelectForListView();
+            }
 
+            // Update any statistic previews
+            TotalItemsSelected = fileTrees.Any() ? $"#Items Selected: {fileTrees.Count()}" : "";
             OnPropertyChanged(nameof(TotalItemsSelected));
         }
 
@@ -114,13 +118,14 @@ namespace ExplorerBites
         /// </summary>
         private void SynchroniseSelectedDirectory(IDirectory selectedDirectory)
         {
+            // Update any statistic previews
             TotalItemsCount = $"#Items: {selectedDirectory.LoadedContents.Count}";
-            Title = selectedDirectory.Path ?? Assembly.GetExecutingAssembly().GetName().Name;
-
             OnPropertyChanged(nameof(TotalItemsCount));
+
+            Title = selectedDirectory.Path ?? Assembly.GetExecutingAssembly().GetName().Name;
         }
 
-        private void SelectDirectory(object sender, RoutedPropertyChangedEventArgs<object> e)
+        private void OnSelectedDirectoryChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             if (e.NewValue is IDirectoryViewModel selectedDirectory)
             {
@@ -128,28 +133,22 @@ namespace ExplorerBites
             }
         }
 
-        private void OpenItem(object sender, MouseButtonEventArgs e)
+        private void OnFileTreeDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            IDirectoryViewModel firstSelectedDirectory = FileTreeSelector.SelectedFileTrees
-                .OfType<IDirectoryViewModel>()
-                .FirstOrDefault();
-
-            if (firstSelectedDirectory != null)
+            // If we're clicking on a file, try to open it as a file
+            if (FileTreeNodeView.SelectedItem is IFile selectedFile)
             {
-                DirectorySelector.SelectDirectory(firstSelectedDirectory);
-                firstSelectedDirectory.IsExpanded = true;
+                selectedFile.TryOpen();
             }
 
-            IEnumerable<IFile> selectedFiles = FileTreeSelector.SelectedFileTrees
-                .OfType<IFile>();
-
-            foreach (IFile file in selectedFiles)
+            // If we're clicking on a directory, open it as a directory
+            else if (FileTreeNodeView.SelectedItem is IDirectory selectedDirectory)
             {
-                file.TryOpen();
+                DirectorySelector.SelectDirectory(selectedDirectory);
             }
         }
 
-        private void SelectFileTreeNodes(object sender, SelectionChangedEventArgs e)
+        private void OnFileTreeSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             IEnumerable<IFileTree> addedItems = e.AddedItems.OfType<IFileTree>();
             IEnumerable<IFileTree> removedItems = e.RemovedItems.OfType<IFileTree>();
@@ -158,11 +157,9 @@ namespace ExplorerBites
             FileTreeSelector.DeselectFileTrees(removedItems);
         }
 
-        private void DeselectFileTrees(object sender, MouseButtonEventArgs e)
+        private void OnFileTreeLeftMouseDown(object sender, MouseButtonEventArgs e)
         {
             FileTreeSelector.ClearSelection();
-
-            FileTreeNodeView.SelectedItem = null;
         }
 
         //private void SelectViaDragPosition(object sender, MouseEventArgs e)

@@ -9,7 +9,7 @@ using ExplorerBites.Models.FileSystem;
 
 namespace ExplorerBites.ViewModels.FileSystem
 {
-    public class DirectoryViewModel : IDirectoryViewModel, INotifyPropertyChanged
+    public class DirectoryViewModel : IDirectoryViewModel
     {
         public DirectoryViewModel(IDirectory directory, IDirectoryViewModel parent)
         {
@@ -29,7 +29,7 @@ namespace ExplorerBites.ViewModels.FileSystem
 
         public ICommand LoadDirectoriesCommand { get; }
         public ICommand LoadContentsCommand { get; }
-        public IFileTree Parent { get; }
+        public IDirectory Parent { get; }
         public bool IsDirectory => Directory.IsDirectory;
         public string FileTreeType => Directory.FileTreeType;
         public string Name => Directory.Name;
@@ -46,27 +46,43 @@ namespace ExplorerBites.ViewModels.FileSystem
 
         public bool HasChildren => Directory.HasChildren;
 
-        public bool IsExpanded
-        {
-            get => IsExpandedCache;
-            set
-            {
-                IsExpandedCache = value;
-                OnPropertyChanged(nameof(IsExpanded));
+        public bool IsExpandedForTreeView { get; private set; }
 
-                if (IsExpandedCache && Parent is IDirectoryViewModel parent)
-                {
-                    parent.IsExpanded = true;
-                }
-            }
-        }
+        public bool IsSelectedForTreeView { get; private set; }
+
+        public bool IsSelectedForListView { get; private set; }
 
         private IDirectory Directory { get; }
 
-        /// <summary>
-        ///     The value for IsExpanded is stored here. The value should be set with IsExpanded so any events are properly fired
-        /// </summary>
-        private bool IsExpandedCache { get; set; }
+        public void ExpandForTreeView()
+        {
+            IsExpandedForTreeView = true;
+            OnPropertyChanged(nameof(IsExpandedForTreeView));
+
+            // Make sure the parent is also expanded
+            if (Parent is IDirectoryViewModel expandableParent)
+            {
+                expandableParent.ExpandForTreeView();
+            }
+        }
+
+        public void ContractForTreeView()
+        {
+            IsExpandedForTreeView = false;
+            OnPropertyChanged(nameof(IsExpandedForTreeView));
+        }
+
+        public void SelectForTreeView()
+        {
+            IsSelectedForTreeView = true;
+            OnPropertyChanged(nameof(IsSelectedForTreeView));
+        }
+
+        public void DeselectForTreeView()
+        {
+            IsSelectedForTreeView = false;
+            OnPropertyChanged(nameof(IsSelectedForTreeView));
+        }
 
         public bool Rename(string name)
         {
@@ -109,6 +125,14 @@ namespace ExplorerBites.ViewModels.FileSystem
         {
             Directory.LoadFiles();
 
+            // The children should be view models so the interface has access to the extended functionality
+            for (int fileIndex = 0; fileIndex < Directory.LoadedFiles.Count; fileIndex++)
+            {
+                IFile loadedFile = Directory.LoadedFiles[fileIndex];
+
+                Directory.LoadedFiles[fileIndex] = new FileViewModel(loadedFile);
+            }
+
             OnPropertyChanged(nameof(LoadedFiles));
             ResyncLoadedContents();
         }
@@ -116,6 +140,18 @@ namespace ExplorerBites.ViewModels.FileSystem
         public new string ToString()
         {
             return Name;
+        }
+
+        public void SelectForListView()
+        {
+            IsSelectedForListView = true;
+            OnPropertyChanged(nameof(IsSelectedForListView));
+        }
+
+        public void DeselectForListView()
+        {
+            IsSelectedForListView = false;
+            OnPropertyChanged(nameof(IsSelectedForListView));
         }
 
         [NotifyPropertyChangedInvocator]

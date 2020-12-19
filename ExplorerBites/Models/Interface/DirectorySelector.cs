@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using ExplorerBites.Annotations;
 using ExplorerBites.Models.FileSystem;
+using ExplorerBites.ViewModels.FileSystem;
 
 namespace ExplorerBites.Models.Interface
 {
@@ -21,8 +18,6 @@ namespace ExplorerBites.Models.Interface
         /// </summary>
         private readonly Stack<IDirectory> History = new Stack<IDirectory>();
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         /// <summary>
         ///     The currently selected directory
         /// </summary>
@@ -32,9 +27,20 @@ namespace ExplorerBites.Models.Interface
         {
             IDirectory currentDirectory = SelectedDirectory;
 
-            if (currentDirectory == null) return;
+            if (currentDirectory == null)
+            {
+                return;
+            }
 
-            if (currentDirectory.Parent is IDirectory parentViewModel) SelectDirectory(parentViewModel);
+            if (currentDirectory.Parent is IDirectory parentViewModel)
+            {
+                SelectDirectoryWithoutHistoryChange(parentViewModel);
+            }
+
+            if (currentDirectory is IDirectoryViewModel selectableDirectory)
+            {
+                selectableDirectory.DeselectForTreeView();
+            }
 
             History.Push(currentDirectory);
             HistoryRollback.Clear();
@@ -42,12 +48,23 @@ namespace ExplorerBites.Models.Interface
 
         public void SelectDirectory(IDirectory directory)
         {
-            SelectedDirectory = directory;
-            SelectedDirectory.LoadContents();
+            IDirectory currentlySelectedDirectory = SelectedDirectory;
 
-            // If we aren't currently at the root level and the last viewed item isn't the last item in our history, add the directory to our history
-            if (directory.Parent is IDirectory parentDirectory &&
-                (!History.Any() || !History.Peek().Equals(parentDirectory))) History.Push(parentDirectory);
+            bool isSelectedDirectoryIdentical = currentlySelectedDirectory != null && currentlySelectedDirectory.Path == directory?.Path;
+
+            if (isSelectedDirectoryIdentical)
+            {
+                return;
+            }
+
+            SelectDirectoryWithoutHistoryChange(directory);
+
+            // If we already have something selected, deselect it and add it to our history
+            if (currentlySelectedDirectory is IDirectoryViewModel selectableDirectory)
+            {
+                selectableDirectory.DeselectForTreeView();
+                History.Push(currentlySelectedDirectory);
+            }
 
             HistoryRollback.Clear();
         }
@@ -56,12 +73,22 @@ namespace ExplorerBites.Models.Interface
         {
             IDirectory currentDirectory = SelectedDirectory;
 
-            if (currentDirectory != null && History.Any())
+            if (currentDirectory == null || History.Any() == false)
             {
-                IDirectory historicalDirectory = History.Pop();
+                return;
+            }
 
-                if (historicalDirectory != null) SelectDirectory(historicalDirectory);
+            IDirectory historicalDirectory = History.Pop();
 
+            if (historicalDirectory != null)
+            {
+                SelectDirectoryWithoutHistoryChange(historicalDirectory);
+            }
+
+            // If we already have something selected, deselect it and add it to our history
+            if (currentDirectory is IDirectoryViewModel selectableDirectory)
+            {
+                selectableDirectory.DeselectForTreeView();
                 HistoryRollback.Push(currentDirectory);
             }
         }
@@ -74,9 +101,29 @@ namespace ExplorerBites.Models.Interface
             {
                 IDirectory historicalDirectory = HistoryRollback.Pop();
 
-                if (historicalDirectory != null) SelectDirectory(historicalDirectory);
+                if (historicalDirectory != null)
+                {
+                    SelectDirectoryWithoutHistoryChange(historicalDirectory);
+                }
+
+                if (currentDirectory is IDirectoryViewModel selectableDirectory)
+                {
+                    selectableDirectory.DeselectForTreeView();
+                }
 
                 History.Push(currentDirectory);
+            }
+        }
+
+        private void SelectDirectoryWithoutHistoryChange(IDirectory directory)
+        {
+            SelectedDirectory = directory;
+            SelectedDirectory.LoadContents();
+
+            if (directory is IDirectoryViewModel selectableDirectory)
+            {
+                selectableDirectory.SelectForTreeView();
+                selectableDirectory.ExpandForTreeView();
             }
         }
     }

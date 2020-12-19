@@ -14,7 +14,7 @@ namespace ExplorerBites.ViewModels.FileSystem
     {
         public RootViewModel()
         {
-            IsExpanded = true;
+            IsExpandedForTreeView = true;
 
             LoadedDirectories = new List<IDirectory>();
             LoadedContents = new List<IFileTree>();
@@ -24,7 +24,7 @@ namespace ExplorerBites.ViewModels.FileSystem
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public IFileTree Parent => null;
+        public IDirectory Parent => null;
         public bool IsDirectory => false;
         public string FileTreeType => "Root";
         public string Name => null;
@@ -45,7 +45,35 @@ namespace ExplorerBites.ViewModels.FileSystem
 
         public ICommand LoadDirectoriesCommand { get; }
         public ICommand LoadContentsCommand { get; }
-        public bool IsExpanded { get; set; }
+        public bool IsExpandedForTreeView { get; private set; }
+
+        public bool IsSelectedForTreeView { get; private set; }
+
+        public bool IsSelectedForListView { get; private set; }
+
+        public void ExpandForTreeView()
+        {
+            IsExpandedForTreeView = true;
+            OnPropertyChanged(nameof(IsExpandedForTreeView));
+        }
+
+        public void ContractForTreeView()
+        {
+            IsExpandedForTreeView = false;
+            OnPropertyChanged(nameof(IsExpandedForTreeView));
+        }
+
+        public void SelectForTreeView()
+        {
+            IsSelectedForTreeView = true;
+            OnPropertyChanged(nameof(IsSelectedForTreeView));
+        }
+
+        public void DeselectForTreeView()
+        {
+            IsSelectedForTreeView = false;
+            OnPropertyChanged(nameof(IsSelectedForTreeView));
+        }
 
         public bool Rename(string name)
         {
@@ -88,6 +116,18 @@ namespace ExplorerBites.ViewModels.FileSystem
         public void LoadFiles()
         {
             throw new InvalidOperationException("Cannot load files from the root view model as it only contains drives");
+        }
+
+        public void SelectForListView()
+        {
+            IsSelectedForListView = true;
+            OnPropertyChanged(nameof(IsSelectedForListView));
+        }
+
+        public void DeselectForListView()
+        {
+            IsSelectedForListView = false;
+            OnPropertyChanged(nameof(IsSelectedForListView));
         }
 
         [NotifyPropertyChangedInvocator]

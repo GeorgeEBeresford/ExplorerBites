@@ -60,6 +60,9 @@
     </ApplicationDefinition>
     <Compile Include="Behaviours\TreeExpandingBehaviour.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="ViewModels\FileSystem\FileViewModel.cs" />
+    <Compile Include="ViewModels\FileSystem\IFileTreeViewModel.cs" />
+    <Compile Include="ViewModels\FileSystem\IFileViewModel.cs" />
     <Compile Include="ViewModels\Interface\DirectorySelectorViewModel.cs" />
     <Compile Include="ViewModels\Interface\FileTreeSelectorViewModel.cs" />
     <Compile Include="ViewModels\Interface\IDirectorySelectorViewModel.cs" />

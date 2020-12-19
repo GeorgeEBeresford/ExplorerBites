@@ -22,7 +22,7 @@ namespace ExplorerBites.Models.FileSystem
             IsValid = DirectoryInfo.Exists;
         }
 
-        public IFileTree Parent => new Directory(DirectoryInfo.Parent?.FullName);
+        public IDirectory Parent => new Directory(DirectoryInfo.Parent?.FullName);
         public bool IsDirectory => true;
         public string FileTreeType => "File directory";
         public string Name => DirectoryInfo.Name;

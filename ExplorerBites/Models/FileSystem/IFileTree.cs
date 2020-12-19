@@ -7,7 +7,7 @@ namespace ExplorerBites.Models.FileSystem
         /// <summary>
         ///     The parent of this tree node
         /// </summary>
-        IFileTree Parent { get; }
+        IDirectory Parent { get; }
 
         /// <summary>
         ///     Whether the tree node is a directory

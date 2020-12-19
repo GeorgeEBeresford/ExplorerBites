@@ -16,7 +16,7 @@ namespace ExplorerBites.Models.FileSystem
 
         private FileInfo FileInfo { get; }
 
-        public IFileTree Parent { get; }
+        public IDirectory Parent { get; }
         public bool IsDirectory => false;
         public string FileTreeType => $"{Extension.ToUpper()} File";
         public string Name => FileInfo.Name;

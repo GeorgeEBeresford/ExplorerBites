@@ -5,6 +5,7 @@ using ExplorerBites.Annotations;
 using ExplorerBites.Commands;
 using ExplorerBites.Models.FileSystem;
 using ExplorerBites.Models.Interface;
+using ExplorerBites.ViewModels.FileSystem;
 
 namespace ExplorerBites.ViewModels.Interface
 {
@@ -29,16 +30,22 @@ namespace ExplorerBites.ViewModels.Interface
         public void LoadParentDirectory()
         {
             DirectorySelector.LoadParentDirectory();
+
+            OnPropertyChanged(nameof(SelectedDirectory));
         }
 
         public void LoadPreviousDirectory()
         {
             DirectorySelector.LoadPreviousDirectory();
+
+            OnPropertyChanged(nameof(SelectedDirectory));
         }
 
         public void UndoPreviousDirectory()
         {
             DirectorySelector.UndoPreviousDirectory();
+
+            OnPropertyChanged(nameof(SelectedDirectory));
         }
 
         public void SelectDirectory(IDirectory directory)
