@@ -48,18 +48,10 @@ namespace ExplorerBites.UnitTests.DirectoryBrowser
         }
 
         [TestMethod]
-        public void DoesEnsureDirectoryExists()
+        public void DoesCheckWhetherDirectoryExists()
         {
-            try
-            {
-                IDirectory directory = new Directory($"C:\\{Guid.NewGuid()}");
-            }
-            catch (DirectoryNotFoundException)
-            {
-                return;
-            }
-
-            Assert.Fail("Directory was created for path that does not exist");
+            IDirectory directory = new Directory($"C:\\{Guid.NewGuid()}");
+            Assert.IsFalse(directory.IsValid, "Directory should be invalid as it does not exist");
         }
 
         [TestMethod]
