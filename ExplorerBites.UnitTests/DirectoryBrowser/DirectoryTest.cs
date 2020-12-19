@@ -17,8 +17,8 @@ namespace ExplorerBites.UnitTests.DirectoryBrowser
         {
             IDirectory directory = new Directory("C:/");
 
-            directory.LoadContents();
-            Assert.IsTrue(directory.LoadedContents.Any(), "No contents were loaded");
+            IEnumerable<IFileTree> contents = directory.GetContents();
+            Assert.IsTrue(contents.Any(), "No contents were loaded");
         }
 
         [TestMethod]
@@ -26,16 +26,8 @@ namespace ExplorerBites.UnitTests.DirectoryBrowser
         {
             IDirectory directory = new Directory("C:/");
 
-            directory.LoadDirectories();
-            Assert.IsTrue(directory.LoadedDirectories.Any(), "No directories were loaded");
-        }
-
-        [TestMethod]
-        public void AreDrivesReturned()
-        {
-            IEnumerable<Directory> drives = Directory.GetDrives();
-
-            Assert.AreEqual(DriveInfo.GetDrives().Length, drives.Count());
+            IEnumerable<IDirectory> directories = directory.GetDirectories();
+            Assert.IsTrue(directories.Any(), "No directories were loaded");
         }
 
         [TestMethod]
@@ -43,8 +35,8 @@ namespace ExplorerBites.UnitTests.DirectoryBrowser
         {
             IDirectory directory = new Directory("C:/");
 
-            directory.LoadFiles();
-            Assert.IsTrue(directory.LoadedFiles.Any(), "No files were loaded");
+            IEnumerable<IFile> files = directory.GetFiles();
+            Assert.IsTrue(files.Any(), "No files were loaded");
         }
 
         [TestMethod]

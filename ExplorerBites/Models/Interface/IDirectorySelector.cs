@@ -1,4 +1,5 @@
 ﻿using ExplorerBites.Models.FileSystem;
+using ExplorerBites.ViewModels.FileSystem;
 
 namespace ExplorerBites.Models.Interface
 {
@@ -7,7 +8,7 @@ namespace ExplorerBites.Models.Interface
         /// <summary>
         ///     The currently selected directory
         /// </summary>
-        IDirectory SelectedDirectory { get; }
+        IDirectoryViewModel SelectedDirectory { get; }
 
         /// <summary>
         ///     Finds the parent of the current directory and selects it as the current directory
@@ -28,6 +29,6 @@ namespace ExplorerBites.Models.Interface
         ///     Selects a directory as the current context
         /// </summary>
         /// <param name="directory">The newly selected directory</param>
-        void SelectDirectory(IDirectory directory);
+        void SelectDirectory(IDirectoryViewModel directory);
     }
 }

@@ -116,20 +116,20 @@ namespace ExplorerBites
         /// <summary>
         ///     Updates any fields and properties which are dependent on the selected directory
         /// </summary>
-        private void SynchroniseSelectedDirectory(IDirectory selectedDirectory)
+        private void SynchroniseSelectedDirectory(IDirectoryViewModel selectedDirectoryViewModel)
         {
             // Update any statistic previews
-            TotalItemsCount = $"#Items: {selectedDirectory.LoadedContents.Count}";
+            TotalItemsCount = $"#Items: {selectedDirectoryViewModel.LoadedContents.Count}";
             OnPropertyChanged(nameof(TotalItemsCount));
 
-            Title = selectedDirectory.Path ?? Assembly.GetExecutingAssembly().GetName().Name;
+            Title = selectedDirectoryViewModel.Directory.Path ?? Assembly.GetExecutingAssembly().GetName().Name;
         }
 
         private void OnSelectedDirectoryChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            if (e.NewValue is IDirectoryViewModel selectedDirectory)
+            if (e.NewValue is IDirectoryViewModel selectedDirectoryViewModel)
             {
-                DirectorySelector.SelectDirectory(selectedDirectory);
+                DirectorySelector.SelectDirectory(selectedDirectoryViewModel);
             }
         }
 
@@ -142,7 +142,7 @@ namespace ExplorerBites
             }
 
             // If we're clicking on a directory, open it as a directory
-            else if (FileTreeNodeView.SelectedItem is IDirectory selectedDirectory)
+            else if (FileTreeNodeView.SelectedItem is IDirectoryViewModel selectedDirectory)
             {
                 DirectorySelector.SelectDirectory(selectedDirectory);
             }

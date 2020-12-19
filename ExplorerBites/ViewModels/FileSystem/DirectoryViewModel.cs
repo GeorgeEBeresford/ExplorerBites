@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using ExplorerBites.Annotations;
@@ -18,6 +18,10 @@ namespace ExplorerBites.ViewModels.FileSystem
             LoadDirectoriesCommand = new RelayCommand(LoadDirectories);
             LoadContentsCommand = new RelayCommand(LoadContents);
 
+            LoadedDirectories = new List<IDirectoryViewModel>();
+            LoadedContents = new List<IFileTreeViewModel>();
+            LoadedFiles = new List<IFileViewModel>();
+
             // Allow the directory to be expanded via the UI without loading the directory contents (increased performance for folders containing a lot of sub-directories)
             if (Directory.HasChildren)
             {
@@ -27,32 +31,19 @@ namespace ExplorerBites.ViewModels.FileSystem
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public IFileTree FileTree => Directory;
+        public IDirectory Directory { get; }
         public ICommand LoadDirectoriesCommand { get; }
         public ICommand LoadContentsCommand { get; }
-        public IDirectory Parent { get; }
-        public bool IsDirectory => Directory.IsDirectory;
-        public string FileTreeType => Directory.FileTreeType;
-        public string Name => Directory.Name;
-        public string Path => Directory.Path;
+        public IDirectoryViewModel Parent { get; }
 
-        public bool IsValid => Directory.IsValid;
-        public DateTime LastModifiedOn => Directory.LastModifiedOn;
-        public List<IFileTree> LoadedContents => Directory.LoadedContents;
-        public List<IDirectory> LoadedDirectories => Directory.LoadedDirectories;
-        public List<IFile> LoadedFiles => Directory.LoadedFiles;
-
-        public string SizeDescription => Directory.SizeDescription;
-        public string KiBDescription => Directory.KiBDescription;
-
-        public bool HasChildren => Directory.HasChildren;
+        public List<IDirectoryViewModel> LoadedDirectories { get; }
+        public List<IFileViewModel> LoadedFiles { get; }
+        public List<IFileTreeViewModel> LoadedContents { get; }
 
         public bool IsExpandedForTreeView { get; private set; }
-
         public bool IsSelectedForTreeView { get; private set; }
-
         public bool IsSelectedForListView { get; private set; }
-
-        private IDirectory Directory { get; }
 
         public void ExpandForTreeView()
         {
@@ -84,21 +75,6 @@ namespace ExplorerBites.ViewModels.FileSystem
             OnPropertyChanged(nameof(IsSelectedForTreeView));
         }
 
-        public bool Rename(string name)
-        {
-            return Directory.Rename(name);
-        }
-
-        public bool Move(string path)
-        {
-            return Directory.Move(path);
-        }
-
-        public bool Move(IDirectory directory)
-        {
-            return Directory.Move(directory);
-        }
-
         public void LoadContents()
         {
             LoadDirectories();
@@ -107,15 +83,12 @@ namespace ExplorerBites.ViewModels.FileSystem
 
         public void LoadDirectories()
         {
-            Directory.LoadDirectories();
+            LoadedDirectories.Clear();
 
-            // The children should be view models so the interface has access to the extended functionality
-            for (int directoryIndex = 0; directoryIndex < Directory.LoadedDirectories.Count; directoryIndex++)
-            {
-                IDirectory loadedDirectory = Directory.LoadedDirectories[directoryIndex];
+            IEnumerable<IDirectoryViewModel> directories = Directory.GetDirectories()
+                .Select(directory => new DirectoryViewModel(directory, this));
 
-                Directory.LoadedDirectories[directoryIndex] = new DirectoryViewModel(loadedDirectory, this);
-            }
+            LoadedDirectories.AddRange(directories);
 
             OnPropertyChanged(nameof(LoadedDirectories));
             ResyncLoadedContents();
@@ -123,23 +96,15 @@ namespace ExplorerBites.ViewModels.FileSystem
 
         public void LoadFiles()
         {
-            Directory.LoadFiles();
+            LoadedFiles.Clear();
 
-            // The children should be view models so the interface has access to the extended functionality
-            for (int fileIndex = 0; fileIndex < Directory.LoadedFiles.Count; fileIndex++)
-            {
-                IFile loadedFile = Directory.LoadedFiles[fileIndex];
+            IEnumerable<IFileViewModel> files = Directory.GetFiles()
+                .Select(file => new FileViewModel(file));
 
-                Directory.LoadedFiles[fileIndex] = new FileViewModel(loadedFile);
-            }
+            LoadedFiles.AddRange(files);
 
             OnPropertyChanged(nameof(LoadedFiles));
             ResyncLoadedContents();
-        }
-
-        public new string ToString()
-        {
-            return Name;
         }
 
         public void SelectForListView()

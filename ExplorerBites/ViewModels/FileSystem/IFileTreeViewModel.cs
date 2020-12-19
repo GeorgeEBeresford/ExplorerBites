@@ -3,8 +3,13 @@ using ExplorerBites.Models.FileSystem;
 
 namespace ExplorerBites.ViewModels.FileSystem
 {
-    public interface IFileTreeViewModel : IFileTree, INotifyPropertyChanged
+    public interface IFileTreeViewModel : INotifyPropertyChanged
     {
+        /// <summary>
+        ///     The file tree which we are using for the current view model
+        /// </summary>
+        IFileTree FileTree { get; }
+
         /// <summary>
         ///     Whether the current item is selected in the file tree list view
         /// </summary>

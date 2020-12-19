@@ -14,37 +14,31 @@ namespace ExplorerBites.ViewModels.FileSystem
     {
         public RootViewModel()
         {
-            IsExpandedForTreeView = true;
-
-            LoadedDirectories = new List<IDirectory>();
-            LoadedContents = new List<IFileTree>();
+            Directory = new Root();
+            LoadedDirectories = new List<IDirectoryViewModel>();
+            LoadedContents = new List<IFileTreeViewModel>();
 
             LoadContentsCommand = new RelayCommand(LoadContents);
             LoadDirectoriesCommand = new RelayCommand(LoadDirectories);
+
+            IsExpandedForTreeView = true;
         }
 
+
         public event PropertyChangedEventHandler PropertyChanged;
-        public IDirectory Parent => null;
-        public bool IsDirectory => false;
-        public string FileTreeType => "Root";
-        public string Name => null;
-        public string Path => null;
-        public bool IsValid => true;
 
-        public DateTime LastModifiedOn => LoadedDirectories
-            .OrderBy(drive => drive.LastModifiedOn)
-            .Select(drive => drive.LastModifiedOn.ToLocalTime())
-            .FirstOrDefault();
+        public IFileTree FileTree => Directory;
+        public IDirectory Directory { get; }
+        public IDirectoryViewModel Parent => null;
 
-        public string SizeDescription => "";
-        public string KiBDescription => "";
-        public List<IFileTree> LoadedContents { get; }
-        public List<IDirectory> LoadedDirectories { get; }
-        public List<IFile> LoadedFiles => throw new InvalidOperationException("Cannot load files from the root view model as it only contains drives");
-        public bool HasChildren => LoadedContents.Any();
+        public List<IFileViewModel> LoadedFiles => null;
+        public List<IDirectoryViewModel> LoadedDirectories { get; }
+        public List<IFileTreeViewModel> LoadedContents { get; }
 
         public ICommand LoadDirectoriesCommand { get; }
         public ICommand LoadContentsCommand { get; }
+
+
         public bool IsExpandedForTreeView { get; private set; }
 
         public bool IsSelectedForTreeView { get; private set; }
@@ -75,30 +69,20 @@ namespace ExplorerBites.ViewModels.FileSystem
             OnPropertyChanged(nameof(IsSelectedForTreeView));
         }
 
-        public bool Rename(string name)
-        {
-            throw new InvalidOperationException("Cannot rename an object with no path");
-        }
-
-        public bool Move(string path)
-        {
-            throw new InvalidOperationException("Cannot move an object with no path");
-        }
-
-        public bool Move(IDirectory directory)
-        {
-            throw new InvalidOperationException("Cannot move an object with no path");
-        }
-
         public void LoadContents()
         {
             LoadDirectories();
         }
 
+        public void LoadFiles()
+        {
+            throw new InvalidOperationException("Cannot load files as the root is a collection of drives");
+        }
+
         public void LoadDirectories()
         {
-            IEnumerable<DirectoryViewModel> initialDrives =
-                Directory.GetDrives().Select(drive => new DirectoryViewModel(drive, this));
+            IEnumerable<DirectoryViewModel> initialDrives = Directory.GetDirectories()
+                .Select(drive => new DirectoryViewModel(drive, this));
 
             LoadedDirectories.Clear();
             LoadedContents.Clear();
@@ -111,11 +95,6 @@ namespace ExplorerBites.ViewModels.FileSystem
 
             OnPropertyChanged(nameof(LoadedDirectories));
             OnPropertyChanged(nameof(LoadedContents));
-        }
-
-        public void LoadFiles()
-        {
-            throw new InvalidOperationException("Cannot load files from the root view model as it only contains drives");
         }
 
         public void SelectForListView()

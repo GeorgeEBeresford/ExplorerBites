@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Input;
 using ExplorerBites.Models.Interface;
+using ExplorerBites.ViewModels.FileSystem;
 
 namespace ExplorerBites.ViewModels.Interface
 {

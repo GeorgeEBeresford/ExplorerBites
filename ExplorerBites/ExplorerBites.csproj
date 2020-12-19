@@ -60,6 +60,7 @@
     </ApplicationDefinition>
     <Compile Include="Behaviours\TreeExpandingBehaviour.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="Models\FileSystem\Root.cs" />
     <Compile Include="ViewModels\FileSystem\FileViewModel.cs" />
     <Compile Include="ViewModels\FileSystem\IFileTreeViewModel.cs" />
     <Compile Include="ViewModels\FileSystem\IFileViewModel.cs" />

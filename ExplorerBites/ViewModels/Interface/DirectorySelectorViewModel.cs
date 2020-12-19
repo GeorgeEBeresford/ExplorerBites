@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using ExplorerBites.Annotations;
 using ExplorerBites.Commands;
-using ExplorerBites.Models.FileSystem;
 using ExplorerBites.Models.Interface;
 using ExplorerBites.ViewModels.FileSystem;
 
@@ -22,7 +21,7 @@ namespace ExplorerBites.ViewModels.Interface
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public IDirectory SelectedDirectory => DirectorySelector.SelectedDirectory;
+        public IDirectoryViewModel SelectedDirectory => DirectorySelector.SelectedDirectory;
         public ICommand PreviousDirectoryCommand { get; }
         public ICommand ParentDirectoryCommand { get; }
         public ICommand UndoPreviousDirectoryCommand { get; }
@@ -48,7 +47,7 @@ namespace ExplorerBites.ViewModels.Interface
             OnPropertyChanged(nameof(SelectedDirectory));
         }
 
-        public void SelectDirectory(IDirectory directory)
+        public void SelectDirectory(IDirectoryViewModel directory)
         {
             DirectorySelector.SelectDirectory(directory);
 

@@ -17,8 +17,6 @@ namespace ExplorerBites.Models.FileSystem
         public Directory(string path)
         {
             DirectoryInfo = new DirectoryInfo(path);
-            LoadedDirectories = new List<IDirectory>();
-            LoadedFiles = new List<IFile>();
             IsValid = DirectoryInfo.Exists;
         }
 
@@ -31,24 +29,7 @@ namespace ExplorerBites.Models.FileSystem
         public string SizeDescription => "";
         public string KiBDescription => "";
 
-        public List<IFileTree> LoadedContents => (LoadedDirectories ?? new List<IDirectory>(0))
-            .Cast<IFileTree>()
-            .Union(LoadedFiles ?? new List<IFile>(0))
-            .ToList();
-
-        public List<IDirectory> LoadedDirectories { get; }
-        public List<IFile> LoadedFiles { get; }
-
         private DirectoryInfo DirectoryInfo { get; }
-
-        public static Directory[] GetDrives()
-        {
-            IEnumerable<Directory> directories = DriveInfo
-                .GetDrives()
-                .Select(drive => new Directory(drive.Name));
-
-            return directories.ToArray();
-        }
 
         public bool Rename(string name)
         {
@@ -67,70 +48,70 @@ namespace ExplorerBites.Models.FileSystem
 
         public bool IsValid { get; private set; }
 
-        public void LoadContents()
+        public List<IFileTree> GetContents()
         {
-            LoadDirectories();
-            LoadFiles();
+            List<IFileTree> contents = new List<IFileTree>();
+
+            contents.AddRange(GetDirectories());
+            contents.AddRange(GetFiles());
+
+            return contents;
         }
 
-        public void LoadDirectories()
+        public List<IDirectory> GetDirectories()
         {
             if (!IsValid)
             {
-                return;
+                return new List<IDirectory>();
             }
 
-            LoadedDirectories.Clear();
-
-            IEnumerable<Directory> directories;
             try
             {
-                directories = DirectoryInfo
+                List<IDirectory> directories = DirectoryInfo
                     .GetDirectories()
-                    .Select(directory => new Directory(directory.FullName));
+                    .Select(file => (IDirectory)new Directory(file.FullName))
+                    .ToList();
+
+                return directories;
             }
             catch (UnauthorizedAccessException)
             {
                 IsValid = false;
-                return;
+                return new List<IDirectory>();
             }
             catch (DirectoryNotFoundException)
             {
                 IsValid = false;
-                return;
+                return new List<IDirectory>();
             }
-
-            LoadedDirectories.AddRange(directories);
         }
 
-        public void LoadFiles()
+        public List<IFile> GetFiles()
         {
             if (!IsValid)
             {
-                return;
+                return new List<IFile>();
             }
 
-            LoadedFiles.Clear();
-
-            IEnumerable<File> files;
             try
             {
-                files = DirectoryInfo
+                List<IFile> files = DirectoryInfo
                     .GetFiles()
-                    .Select(file => new File(file.FullName, this));
+                    .Select(file => (IFile) new File(file.FullName, this))
+                    .ToList();
+
+                return files;
             }
             catch (UnauthorizedAccessException)
             {
                 IsValid = false;
-                return;
+                return new List<IFile>();
             }
             catch (DirectoryNotFoundException)
             {
                 IsValid = false;
-                return;
+                return new List<IFile>();
             }
-
-            LoadedFiles.AddRange(files);
         }
 
         public bool HasChildren

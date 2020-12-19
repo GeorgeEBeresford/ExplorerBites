@@ -11,28 +11,28 @@ namespace ExplorerBites.Models.Interface
         ///     A stack of directories which the user has hit the "back" button while on. If the page is changed without executing
         ///     the PreviousDirectoryCommand, this will be cleared.
         /// </summary>
-        private readonly Stack<IDirectory> HistoryRollback = new Stack<IDirectory>();
+        private readonly Stack<IDirectoryViewModel> HistoryRollback = new Stack<IDirectoryViewModel>();
 
         /// <summary>
         ///     A stack of directories which the user has selected another page while on.
         /// </summary>
-        private readonly Stack<IDirectory> History = new Stack<IDirectory>();
+        private readonly Stack<IDirectoryViewModel> History = new Stack<IDirectoryViewModel>();
 
         /// <summary>
         ///     The currently selected directory
         /// </summary>
-        public IDirectory SelectedDirectory { get; private set; }
+        public IDirectoryViewModel SelectedDirectory { get; private set; }
 
         public void LoadParentDirectory()
         {
-            IDirectory currentDirectory = SelectedDirectory;
+            IDirectoryViewModel currentDirectory = SelectedDirectory;
 
             if (currentDirectory == null)
             {
                 return;
             }
 
-            if (currentDirectory.Parent is IDirectory parentViewModel)
+            if (currentDirectory.Parent is IDirectoryViewModel parentViewModel)
             {
                 SelectDirectoryWithoutHistoryChange(parentViewModel);
             }
@@ -46,24 +46,24 @@ namespace ExplorerBites.Models.Interface
             HistoryRollback.Clear();
         }
 
-        public void SelectDirectory(IDirectory directory)
+        public void SelectDirectory(IDirectoryViewModel newlySelectedDirectory)
         {
-            IDirectory currentlySelectedDirectory = SelectedDirectory;
+            IDirectoryViewModel previouslySelectedDirectory = SelectedDirectory;
 
-            bool isSelectedDirectoryIdentical = currentlySelectedDirectory != null && currentlySelectedDirectory.Path == directory?.Path;
+            bool isSelectedDirectoryIdentical = previouslySelectedDirectory != null && previouslySelectedDirectory.Directory.Path == newlySelectedDirectory?.Directory.Path;
 
             if (isSelectedDirectoryIdentical)
             {
                 return;
             }
 
-            SelectDirectoryWithoutHistoryChange(directory);
+            SelectDirectoryWithoutHistoryChange(newlySelectedDirectory);
 
             // If we already have something selected, deselect it and add it to our history
-            if (currentlySelectedDirectory is IDirectoryViewModel selectableDirectory)
+            if (previouslySelectedDirectory is IDirectoryViewModel selectableDirectory)
             {
                 selectableDirectory.DeselectForTreeView();
-                History.Push(currentlySelectedDirectory);
+                History.Push(previouslySelectedDirectory);
             }
 
             HistoryRollback.Clear();
@@ -71,14 +71,14 @@ namespace ExplorerBites.Models.Interface
 
         public void LoadPreviousDirectory()
         {
-            IDirectory currentDirectory = SelectedDirectory;
+            IDirectoryViewModel currentDirectory = SelectedDirectory;
 
             if (currentDirectory == null || History.Any() == false)
             {
                 return;
             }
 
-            IDirectory historicalDirectory = History.Pop();
+            IDirectoryViewModel historicalDirectory = History.Pop();
 
             if (historicalDirectory != null)
             {
@@ -95,11 +95,11 @@ namespace ExplorerBites.Models.Interface
 
         public void UndoPreviousDirectory()
         {
-            IDirectory currentDirectory = SelectedDirectory;
+            IDirectoryViewModel currentDirectory = SelectedDirectory;
 
             if (currentDirectory != null && HistoryRollback.Any())
             {
-                IDirectory historicalDirectory = HistoryRollback.Pop();
+                IDirectoryViewModel historicalDirectory = HistoryRollback.Pop();
 
                 if (historicalDirectory != null)
                 {
@@ -115,7 +115,7 @@ namespace ExplorerBites.Models.Interface
             }
         }
 
-        private void SelectDirectoryWithoutHistoryChange(IDirectory directory)
+        private void SelectDirectoryWithoutHistoryChange(IDirectoryViewModel directory)
         {
             SelectedDirectory = directory;
             SelectedDirectory.LoadContents();

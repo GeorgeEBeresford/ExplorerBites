@@ -32,7 +32,7 @@
             <Button Content="←" Background="WhiteSmoke" FontSize="17" Foreground="Black" BorderThickness="0" Width="40" HorizontalAlignment="Left" Command="{Binding DirectorySelector.PreviousDirectoryCommand}" />
             <Button Content="→" Background="WhiteSmoke" FontSize="17" Foreground="Black" BorderThickness="0" Width="40" HorizontalAlignment="Left" Command="{Binding DirectorySelector.UndoPreviousDirectoryCommand}"/>
             <Button Content="↑" Background="WhiteSmoke" FontSize="17" Foreground="Black" BorderThickness="0" Width="40" HorizontalAlignment="Left" Command="{Binding DirectorySelector.ParentDirectoryCommand}" />
-            <TextBox IsReadOnly="true" Background="White" Foreground="Black" VerticalContentAlignment="Center" BorderThickness="0" DataContext="{Binding Path=DirectorySelector.SelectedDirectory}" Text="{Binding Path, Mode=OneWay}" />
+            <TextBox IsReadOnly="true" Background="White" Foreground="Black" VerticalContentAlignment="Center" BorderThickness="0" DataContext="{Binding Path=DirectorySelector.SelectedDirectory}" Text="{Binding Directory.Path, Mode=OneWay}" />
         </DockPanel>
         <TreeView x:Name="FolderNodeView" VerticalContentAlignment="Stretch" Background="LightGray" Grid.Row="3" Grid.Column="0" DataContext="{Binding ElementName=UI, Path=RootViewModel, Mode=OneWay}" ItemsSource="{Binding LoadedDirectories, Mode=OneWay}" SelectedItemChanged="OnSelectedDirectoryChanged">
             <TreeView.Resources>
@@ -48,17 +48,17 @@
                     </Style.Triggers>
                 </Style>
                 <HierarchicalDataTemplate DataType="{x:Type fileSystem:DirectoryViewModel}" ItemsSource="{Binding LoadedDirectories}">
-                    <TextBlock Text="{Binding Name}"></TextBlock>
+                    <TextBlock Text="{Binding Directory.Name}"></TextBlock>
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>
         <ListView x:Name="FileTreeNodeView" MouseDoubleClick="OnFileTreeDoubleClick" Background="White" SelectionChanged="OnFileTreeSelectionChanged" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" HorizontalContentAlignment="Stretch" DataContext="{Binding ElementName=UI, Path=DirectorySelector.SelectedDirectory}" MouseLeftButtonDown="OnFileTreeLeftMouseDown" ItemsSource="{Binding LoadedContents}">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}"></GridViewColumn>
-                    <GridViewColumn Header="Date modified" Width="200" DisplayMemberBinding="{Binding LastModifiedOn}"></GridViewColumn>
-                    <GridViewColumn Header="Type" Width="100"  DisplayMemberBinding="{Binding FileTreeType}"></GridViewColumn>
-                    <GridViewColumn Header="Size" Width="200" DisplayMemberBinding="{Binding KiBDescription}"></GridViewColumn>
+                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding FileTree.Name}"></GridViewColumn>
+                    <GridViewColumn Header="Date modified" Width="200" DisplayMemberBinding="{Binding FileTree.LastModifiedOn}"></GridViewColumn>
+                    <GridViewColumn Header="Type" Width="100"  DisplayMemberBinding="{Binding FileTree.FileTreeType}"></GridViewColumn>
+                    <GridViewColumn Header="Size" Width="200" DisplayMemberBinding="{Binding FileTree.KiBDescription}"></GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
