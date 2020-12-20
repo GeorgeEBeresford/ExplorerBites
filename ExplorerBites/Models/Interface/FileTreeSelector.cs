@@ -9,72 +9,66 @@ namespace ExplorerBites.Models.Interface
     {
         public FileTreeSelector()
         {
-            SelectedFileTrees = new List<IFileTree>();
+            SelectedFileTrees = new List<IFileTreeViewModel>();
         }
 
-        public IReadOnlyCollection<IFileTree> SelectedFileTrees { get; }
+        public IReadOnlyCollection<IFileTreeViewModel> SelectedFileTrees { get; }
 
         public void ClearSelection()
         {
-            foreach (IFileTreeViewModel selectableFileTree in SelectedFileTrees.OfType<IFileTreeViewModel>())
+            foreach (IFileTreeViewModel selectableFileTree in SelectedFileTrees)
             {
                 selectableFileTree.DeselectForListView();
             }
 
-            ((List<IFileTree>) SelectedFileTrees).Clear();
+            ((List<IFileTreeViewModel>)SelectedFileTrees).Clear();
         }
 
-        public void SelectFileTrees(IEnumerable<IFileTree> fileTrees)
+        public void SelectFileTrees(IEnumerable<IFileTreeViewModel> fileTrees)
         {
-            foreach (IFileTree fileTree in fileTrees)
+            foreach (IFileTreeViewModel fileTree in fileTrees)
             {
-                if (fileTree is IFileTreeViewModel selectableFileTree)
-                {
-                    selectableFileTree.SelectForListView();
-                }
+                fileTree.SelectForListView();
 
-                ((List<IFileTree>)SelectedFileTrees).Add(fileTree);
+                ((List<IFileTreeViewModel>)SelectedFileTrees).Add(fileTree);
             }
         }
 
-        public void SelectFileTree(IFileTree fileTree)
+        public void SelectFileTree(IFileTreeViewModel fileTree)
         {
             if (fileTree is IFileTreeViewModel selectableFileTree)
             {
                 selectableFileTree.SelectForListView();
             }
 
-            ((List<IFileTree>) SelectedFileTrees).Add(fileTree);
+            ((List<IFileTreeViewModel>)SelectedFileTrees).Add(fileTree);
         }
 
-        public bool DeselectFileTree(IFileTree fileTree)
+        public bool DeselectFileTree(IFileTreeViewModel fileTree)
         {
-            bool isSuccess = ((List<IFileTree>)SelectedFileTrees).Remove(fileTree);
+            bool isSuccess = ((List<IFileTreeViewModel>)SelectedFileTrees).Remove(fileTree);
 
-            if (isSuccess && fileTree is IFileTreeViewModel selectableFileTree)
+            if (isSuccess)
             {
-                selectableFileTree.SelectForListView();
+                fileTree.DeselectForListView();
             }
 
             return isSuccess;
         }
 
-        public bool DeselectFileTrees(IEnumerable<IFileTree> fileTrees)
+        public bool DeselectFileTrees(IEnumerable<IFileTreeViewModel> fileTrees)
         {
             bool allAreRemoved = true;
 
             // Remove the file trees from our reference of selected files
-            foreach (IFileTree fileTree in fileTrees)
+            foreach (IFileTreeViewModel fileTree in fileTrees)
             {
-                bool isSuccess = ((List<IFileTree>) SelectedFileTrees).Remove(fileTree);
+                bool isSuccess = ((List<IFileTreeViewModel>)SelectedFileTrees).Remove(fileTree);
 
                 if (isSuccess)
                 {
                     // If the item was successfully removed, set the IsSelected property to false
-                    if (fileTree is IFileTreeViewModel selectableFileTree)
-                    {
-                        selectableFileTree.DeselectForListView();
-                    }
+                    fileTree.DeselectForListView();
                 }
                 else
                 {

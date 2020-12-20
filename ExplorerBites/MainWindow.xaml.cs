@@ -98,12 +98,12 @@ namespace ExplorerBites
         ///     Updates any fields and properties which are dependent on the selected file trees
         /// </summary>
         /// <param name="fileTrees"></param>
-        private void SynchroniseSelectedFileTrees(IEnumerable<IFileTree> fileTrees)
+        private void SynchroniseSelectedFileTrees(IEnumerable<IFileTreeViewModel> fileTrees)
         {
             // Greedy-load the enumerable so we aren't enumerating twice
             fileTrees = fileTrees.ToList();
 
-            foreach (IFileTreeViewModel selectableFileTree in fileTrees.OfType<IFileTreeViewModel>())
+            foreach (IFileTreeViewModel selectableFileTree in fileTrees)
             {
                 selectableFileTree.SelectForListView();
             }
@@ -136,9 +136,9 @@ namespace ExplorerBites
         private void OnFileTreeDoubleClick(object sender, MouseButtonEventArgs e)
         {
             // If we're clicking on a file, try to open it as a file
-            if (FileTreeNodeView.SelectedItem is IFile selectedFile)
+            if (FileTreeNodeView.SelectedItem is IFileViewModel selectedFile)
             {
-                selectedFile.TryOpen();
+                selectedFile.File.TryOpen();
             }
 
             // If we're clicking on a directory, open it as a directory
@@ -150,8 +150,8 @@ namespace ExplorerBites
 
         private void OnFileTreeSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            IEnumerable<IFileTree> addedItems = e.AddedItems.OfType<IFileTree>();
-            IEnumerable<IFileTree> removedItems = e.RemovedItems.OfType<IFileTree>();
+            IEnumerable<IFileTreeViewModel> addedItems = e.AddedItems.OfType<IFileTreeViewModel>();
+            IEnumerable<IFileTreeViewModel> removedItems = e.RemovedItems.OfType<IFileTreeViewModel>();
 
             FileTreeSelector.SelectFileTrees(addedItems);
             FileTreeSelector.DeselectFileTrees(removedItems);

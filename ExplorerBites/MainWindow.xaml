@@ -58,7 +58,7 @@
                     <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding FileTree.Name}"></GridViewColumn>
                     <GridViewColumn Header="Date modified" Width="200" DisplayMemberBinding="{Binding FileTree.LastModifiedOn}"></GridViewColumn>
                     <GridViewColumn Header="Type" Width="100"  DisplayMemberBinding="{Binding FileTree.FileTreeType}"></GridViewColumn>
-                    <GridViewColumn Header="Size" Width="200" DisplayMemberBinding="{Binding FileTree.KiBDescription}"></GridViewColumn>
+                    <GridViewColumn Header="Size" Width="200" DisplayMemberBinding="{Binding KiBDescription}"></GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>

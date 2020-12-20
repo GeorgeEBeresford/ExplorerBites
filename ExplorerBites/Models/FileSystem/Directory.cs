@@ -21,14 +21,10 @@ namespace ExplorerBites.Models.FileSystem
         }
 
         public IDirectory Parent => new Directory(DirectoryInfo.Parent?.FullName);
-        public bool IsDirectory => true;
         public string FileTreeType => "File directory";
         public string Name => DirectoryInfo.Name;
         public string Path => DirectoryInfo.FullName;
         public DateTime LastModifiedOn => DirectoryInfo.LastWriteTimeUtc.ToLocalTime();
-        public string SizeDescription => "";
-        public string KiBDescription => "";
-
         private DirectoryInfo DirectoryInfo { get; }
 
         public bool Rename(string name)
@@ -97,7 +93,7 @@ namespace ExplorerBites.Models.FileSystem
             {
                 List<IFile> files = DirectoryInfo
                     .GetFiles()
-                    .Select(file => (IFile) new File(file.FullName, this))
+                    .Select(file => (IFile) new File(file.Name, this))
                     .ToList();
 
                 return files;

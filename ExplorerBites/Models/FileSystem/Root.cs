@@ -13,15 +13,12 @@ namespace ExplorerBites.Models.FileSystem
         private readonly IReadOnlyCollection<DriveInfo> Drives = DriveInfo.GetDrives();
 
         public IDirectory Parent => null;
-        public bool IsDirectory => true;
         public string FileTreeType => "Root";
         public string Name => "Root";
         public string Path => "Root";
 
         public bool IsValid => true;
         public DateTime LastModifiedOn => DateTime.MinValue;
-        public string SizeDescription => "0B";
-        public string KiBDescription => "0B";
 
         public bool HasChildren => Drives.Any();
 

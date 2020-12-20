@@ -38,6 +38,8 @@ namespace ExplorerBites.ViewModels.FileSystem
         public ICommand LoadDirectoriesCommand { get; }
         public ICommand LoadContentsCommand { get; }
 
+        public string SizeDescription => "";
+        public string KiBDescription => "";
 
         public bool IsExpandedForTreeView { get; private set; }
 

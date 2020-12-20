@@ -41,6 +41,9 @@ namespace ExplorerBites.ViewModels.FileSystem
         public List<IFileViewModel> LoadedFiles { get; }
         public List<IFileTreeViewModel> LoadedContents { get; }
 
+        public string SizeDescription => "";
+        public string KiBDescription => "";
+
         public bool IsExpandedForTreeView { get; private set; }
         public bool IsSelectedForTreeView { get; private set; }
         public bool IsSelectedForListView { get; private set; }

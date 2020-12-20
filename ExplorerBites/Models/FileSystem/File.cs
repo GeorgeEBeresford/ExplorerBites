@@ -1,14 +1,15 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using WindowsWrapper.FileSystem;
 
 namespace ExplorerBites.Models.FileSystem
 {
     public class File : IFile
     {
-        public File(string path, IDirectory parent)
+        public File(string fileName, IDirectory parent)
         {
-            FileInfo = new FileInfo(path);
+            FileInfo = new FileInfo(System.IO.Path.Combine(parent.Path, fileName));
             WrappedFile = new WindowsFile(FileInfo);
             Parent = parent;
             IsValid = FileInfo.Exists;
@@ -17,11 +18,10 @@ namespace ExplorerBites.Models.FileSystem
         private FileInfo FileInfo { get; }
 
         public IDirectory Parent { get; }
-        public bool IsDirectory => false;
         public string FileTreeType => $"{Extension.ToUpper()} File";
         public string Name => FileInfo.Name;
         public string Path => FileInfo.FullName;
-        public string Extension => FileInfo.Extension;
+        public string Extension => FileInfo.Name.Split('.').LastOrDefault();
 
         public bool Rename(string name)
         {
@@ -80,39 +80,6 @@ namespace ExplorerBites.Models.FileSystem
 
         public DateTime LastModifiedOn => FileInfo.LastWriteTimeUtc.ToLocalTime();
         public long Length => FileInfo.Length;
-        public string SizeDescription
-        {
-            get
-            {
-                long length = Length;
-                int power = 0;
-
-                // I'm sure there's a better way to find KiB, MiB, GiB, etc... I'm tired.
-                while (length > 1024)
-                {
-                    length /= 1024;
-                    power += 1;
-                }
-
-                switch (power)
-                {
-                    case 1:
-                        return $"{length} KiB";
-                    case 2:
-                        return $"{length} MiB";
-                    case 3:
-                        return $"{length} GiB";
-                    case 4:
-                        // Maximum file size is 256 Terabytes. We don't need to go any higher than this
-                        return $"{length} TiB";
-                    default:
-                        return $"{Length} bytes";
-
-                }
-            }
-        }
-
-        public string KiBDescription => $"{(Length / 1024):N0} KB";
 
         public override string ToString()
         {

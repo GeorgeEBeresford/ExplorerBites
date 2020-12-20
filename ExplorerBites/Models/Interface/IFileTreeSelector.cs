@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ExplorerBites.Models.FileSystem;
+using ExplorerBites.ViewModels.FileSystem;
 
 namespace ExplorerBites.Models.Interface
 {
@@ -8,7 +9,7 @@ namespace ExplorerBites.Models.Interface
         /// <summary>
         ///     A reference to any currently selected file tree nodes
         /// </summary>
-        IReadOnlyCollection<IFileTree> SelectedFileTrees { get; }
+        IReadOnlyCollection<IFileTreeViewModel> SelectedFileTrees { get; }
 
         /// <summary>
         ///     Clears the references to any selected file tree nodes
@@ -19,24 +20,24 @@ namespace ExplorerBites.Models.Interface
         ///     Adds one or more file trees to our references of selected file tree nodes
         /// </summary>
         /// <param name="fileTrees"></param>
-        void SelectFileTrees(IEnumerable<IFileTree> fileTrees);
+        void SelectFileTrees(IEnumerable<IFileTreeViewModel> fileTrees);
 
         /// <summary>
         ///     Adds one file tree to our reference of selected file tree nodes
         /// </summary>
         /// <param name="fileTree"></param>
-        void SelectFileTree(IFileTree fileTree);
+        void SelectFileTree(IFileTreeViewModel fileTree);
 
         /// <summary>
         ///     Removes one file tree from our reference of selected file tree nodes
         /// </summary>
         /// <param name="fileTree"></param>
-        bool DeselectFileTree(IFileTree fileTree);
+        bool DeselectFileTree(IFileTreeViewModel fileTree);
 
         /// <summary>
         ///     Removes one or more file tree from our reference of selected file tree nodes
         /// </summary>
         /// <param name="fileTrees"></param>
-        bool DeselectFileTrees(IEnumerable<IFileTree> fileTrees);
+        bool DeselectFileTrees(IEnumerable<IFileTreeViewModel> fileTrees);
     }
 }

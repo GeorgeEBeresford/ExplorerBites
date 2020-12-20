@@ -21,5 +21,10 @@
         /// The number of bytes in the file
         /// </summary>
         long Length { get; }
+
+        /// <summary>
+        /// The extension for the current file
+        /// </summary>
+        string Extension { get; }
     }
 }

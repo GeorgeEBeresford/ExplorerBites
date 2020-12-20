@@ -16,6 +16,16 @@ namespace ExplorerBites.ViewModels.FileSystem
         bool IsSelectedForListView { get; }
 
         /// <summary>
+        ///     A description of the number of bytes in the file tree node
+        /// </summary>
+        string SizeDescription { get; }
+
+        /// <summary>
+        ///     The number of Kibibytes in the file tree node
+        /// </summary>
+        string KiBDescription { get; }
+
+        /// <summary>
         ///     Sets the current item to be selected in the file tree list view and notifies any subscribers of the change to
         ///     <see cref="IsSelectedForListView" />
         /// </summary>
